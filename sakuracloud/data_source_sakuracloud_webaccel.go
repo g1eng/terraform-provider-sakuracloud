@@ -225,6 +225,18 @@ func dataSourceSakuraCloudWebAccelRead(ctx context.Context, d *schema.ResourceDa
 		d.Set("normalize_ae", data.NormalizeAE)
 	}
 
+	if data.CORSRules != nil {
+		if len(data.CORSRules) == 1 {
+			if data.CORSRules[0].AllowsAnyOrigin == true && len(data.CORSRules[0].AllowedOrigins) != 0 {
+				return diag.Errorf("allow_all and allowed_origins should not be specified together")
+			} else if data.CORSRules[0].AllowsAnyOrigin == false && len(data.CORSRules[0].AllowedOrigins) == 0 {
+				d.Set("cors_rules", flattenWebAccelCorsRules(data.CORSRules[0]))
+			}
+		} else if len(data.CORSRules) > 1 {
+			return diag.Errorf("too many CORS rules")
+		}
+	}
+
 	switch data.OriginType {
 	case webaccel.OriginTypesWebServer:
 	case webaccel.OriginTypesObjectStorage:
@@ -234,5 +246,12 @@ func dataSourceSakuraCloudWebAccelRead(ctx context.Context, d *schema.ResourceDa
 
 	d.Set("cname_record_value", data.Subdomain+".")
 	d.Set("txt_record_value", fmt.Sprintf("webaccel=%s", data.Subdomain))
+	d.Set("vary_support", data.VarySupport == webaccel.VarySupportEnabled)
+	if data.NormalizeAE == webaccel.NormalizeAEBrGz {
+		d.Set("normalize_ae", "brotli")
+	} else {
+		// gzip is chosen by default
+		d.Set("normalize_ae", "gzip")
+	}
 	return nil
 }
