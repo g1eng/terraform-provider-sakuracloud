@@ -1,30 +1,39 @@
+version: "2"
 run:
-  deadline: 10m10s
+  timeout: 10m10s
 
 issues:
-  max-per-linter: 0
+  max-issues-per-linter: 0
   max-same-issues: 0
 
 linters:
-  disable-all: true
   enable:
     - errcheck
-    - gofmt
-    - goimports
-    - gosimple
+    - gocritic
     - govet
     - ineffassign
-#    - interfacer
-    - nakedret
     - misspell
+    - nakedret
     - staticcheck
-    - typecheck
-    - unused
     - unconvert
-    - vet
-    - vetshadow
+    - unused
     - whitespace
+  settings:
+    errcheck:
+      exclude-functions:
+        - (*github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema).ForceNew|Set
+        - fmt.*
+        - io.Close
+  exclusions:
+    generated: lax
+    paths:
+      - examples$
 
-linters-settings:
-  errcheck:
-    ignore: github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set,fmt:.*,io:Close
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - examples$
