@@ -32,32 +32,32 @@ import (
 
 func validateSakuracloudIDType(v interface{}, k string) ([]string, []error) {
 	var ws []string
-	var errors []error
+	var errorList []error
 
 	value := v.(string)
 	if value == "" {
-		return ws, errors
+		return ws, errorList
 	}
 	_, err := strconv.ParseInt(value, 10, 64)
 	if err != nil {
-		errors = append(errors, fmt.Errorf("%q must be ID string(number only): %s", k, err))
+		errorList = append(errorList, fmt.Errorf("%q must be ID string(number only): %s", k, err))
 	}
-	return ws, errors
+	return ws, errorList
 }
 
 func validateSakuraCloudServerNIC(v interface{}, k string) ([]string, []error) {
 	var ws []string
-	var errors []error
+	var errorList []error
 
 	value := v.(string)
 	if value == "" || value == "shared" || value == "disconnect" {
-		return ws, errors
+		return ws, errorList
 	}
 	_, err := strconv.ParseInt(value, 10, 64)
 	if err != nil {
-		errors = append(errors, fmt.Errorf("%q must be ID string(number only): %s", k, err))
+		errorList = append(errorList, fmt.Errorf("%q must be ID string(number only): %s", k, err))
 	}
-	return ws, errors
+	return ws, errorList
 }
 
 func validateBackupWeekdays(d resourceValueGettable, k string) error {
@@ -100,7 +100,7 @@ func validateBackupTime() schema.SchemaValidateDiagFunc {
 }
 
 func validateIPv4Address() schema.SchemaValidateDiagFunc {
-	return validation.ToDiagFunc(func(v interface{}, k string) (ws []string, errors []error) {
+	return validation.ToDiagFunc(func(v interface{}, k string) (ws []string, errorList []error) {
 		// if target is nil , return OK(Use required attr if necessary)
 		if v == nil {
 			return
@@ -113,7 +113,7 @@ func validateIPv4Address() schema.SchemaValidateDiagFunc {
 
 			ip := net.ParseIP(value)
 			if ip == nil || !strings.Contains(value, ".") {
-				errors = append(errors, fmt.Errorf("%q Invalid IPv4 address format", k))
+				errorList = append(errorList, fmt.Errorf("%q Invalid IPv4 address format", k))
 			}
 		}
 		return
@@ -149,17 +149,17 @@ func validateCarrier(d resourceValueGettable) error {
 
 func validateSourceSharedKey(v interface{}, k string) ([]string, []error) {
 	var ws []string
-	var errors []error
+	var errorList []error
 
 	value := v.(string)
 	if value == "" {
-		return ws, errors
+		return ws, errorList
 	}
 	key := types.ArchiveShareKey(value)
 	if !key.ValidFormat() {
-		errors = append(errors, fmt.Errorf("%q must be formatted in '<ZONE>:<ID>:<TOKEN>'", k))
+		errorList = append(errorList, fmt.Errorf("%q must be formatted in '<ZONE>:<ID>:<TOKEN>'", k))
 	}
-	return ws, errors
+	return ws, errorList
 }
 
 func validateAutoScaleConfig(v interface{}, k string) ([]string, []error) {
